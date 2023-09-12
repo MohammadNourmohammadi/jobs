@@ -1,0 +1,150 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'jobs/dashboard_profile.css' %}">
+{% endblock %}
+{% block main %}
+    {% load i18n %}
+    {% load convert_numbers %}
+    <div class='profile'>
+        <div class='profile__container'>
+            <div class='profile-photo-wrapper'>
+                <h1 class='profile__name'> {{ userprofile.user.get_full_name|title }} </h1>
+
+                <span class="upper-buttons-wrapper">
+                    <a href="{% url 'jobs:edit_profile' %}">
+                        <button class="grey-transparent-button profile-button">
+                            <i class="fa fa-edit"></i>
+                            {% translate 'Edit Profile' %}
+                        </button>
+                    </a>
+
+                    {% if not request.user.is_email_verified %}
+                        <form action="{% url 'auth:send-email-verification' %}"
+                              method="post">
+                            {% csrf_token %}
+                            <button class="grey-transparent-button">
+                                <i class="fa fa-envelope"></i>
+                                {% translate 'Send Email Verification' %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="grey-transparent-button">
+                            <i class="fa fa-check"></i>Email Verified
+                        </button>
+                    {% endif %}
+                </span>
+            </div>
+
+            <hr class='divider'/>
+
+            <div class="labeled-info">
+                <h3>{% translate "Email" %}</h3>
+                <h4> {{ userprofile.user.email }} </h4>
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "Mobile Number" %}</h3>
+                {% if userprofile.mobile_number is not None %}
+                    <h4> {{ userprofile.mobile_number }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "Telephone Number" %}</h3>
+                {% if userprofile.phone_number %}
+                    <h4> {{ userprofile.phone_number }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "City of Residence" %}</h3>
+                {% if userprofile.city_of_residence is not None %}
+                    <h4> {{ userprofile.city_of_residence }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "Gender" %}</h3>
+                {% if userprofile.gender is not None %}
+                    <h4> {{ userprofile.get_gender_display }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "Marital Status" %}</h3>
+                {% if userprofile.marital_status is not None %}
+                    <h4> {{ userprofile.get_marital_status_display }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info">
+                <h3>{% translate "Military Service Status" %}</h3>
+                {% if userprofile.military_service_status is not None %}
+                    <h4> {{ userprofile.get_military_service_status_display }} </h4>
+                {% else %}
+                    {% translate "Not set" %}
+                {% endif %}
+            </div>
+
+            <div class="labeled-info info-item--wide">
+                <h3>{% translate "About" %}</h3>
+                <h4>
+                    {{ userprofile.bio }}
+                </h4>
+            </div>
+
+            <div class="labeled-info info-item--wide">
+                <h3>{% translate "Skills" %}</h3>
+                <div class='skills__container'>
+                    {% for skill in userprofile.skills.all %}
+                        <h4 class='info-item__value info-item__value--tag'> {{ skill }} </h4>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="info-item info-item--wide">
+                <h3 class='info-item__title'>{% translate "Educational Background" %}</h3>
+
+                {% for educational_background in userprofile.educationalbackground_set.all %}
+                    <div class='educational-background'>
+                        <img class="educational-background__institute-logo" src={% static 'images/education.png' %}/>
+                        <div class="educational-background__details">
+                            <h4 class='info-item__value'>
+                                {{ educational_background.field }} | {{ educational_background.institute }}
+                            </h4>
+                            <h5 class="info-item__value">
+                                {{ educational_background.start_year }} - {{ educational_background.finish_year }}
+                            </h5>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <h3> {% translate "Verified Emails" %}: </h3>
+            <ul>
+                {% for email in request.user.profile.alt_emails.all %}
+                    {% if email.is_verified %}
+                        <li>
+                            <label>{{ email.address }}</label>
+                            {% translate "Email verified" %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+{% endblock %}
+
